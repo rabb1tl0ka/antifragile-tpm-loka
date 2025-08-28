@@ -67,6 +67,13 @@ python3 rag.py query --store ./rag_store --q "Kickoff for a biotech client; avoi
 ```
 
 ## Test with Ultralight RAG
+
+Just run the demo:
+```bash
+./run-demo-ultralight.sh
+```
+Or manually...
+
 Validate all lessons:
 ```bash
 python3 rag-ultralight.py validate --data ./data_ultralight
