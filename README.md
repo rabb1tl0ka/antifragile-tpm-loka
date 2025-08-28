@@ -50,7 +50,7 @@ requirements.txt        # install this first
 README.md
 ```
 
-## RAG
+## Test with full RAG
 Validate all lessons:
 ```bash
 python3 rag.py validate --data ./data
@@ -66,7 +66,7 @@ Query it:
 python3 rag.py query --store ./rag_store --q "Kickoff for a biotech client; avoid data mistakes" -k 5
 ```
 
-## Ultralight RAG Version
+## Test with Ultralight RAG
 Validate all lessons:
 ```bash
 python3 rag-ultralight.py validate --data ./data_ultralight
