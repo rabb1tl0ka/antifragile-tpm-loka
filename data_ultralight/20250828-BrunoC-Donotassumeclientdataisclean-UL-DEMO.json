@@ -1,0 +1,47 @@
+{
+  "id": "c5a7c0df-2e54-4e3c-95f7-02b92dd50d77",
+  "title": "Do not assume client data is clean",
+  "summary": "We assumed client’s CSV exports were reliable. Midway, we found missing IDs and duplicate rows, forcing rework of our entire pipeline.",
+  "phase": "Build",
+  "client_name": "Biotech Co.",
+  "industries": [
+    "Biotech"
+  ],
+  "project_type": "MVP",
+  "incident": {
+    "what_happened": "Initial integration showed data gaps and duplicates that broke workflows.",
+    "root_cause": "No upfront validation of client data quality.",
+    "root_cause_category": "Data Quality",
+    "impact": {
+      "level": 4,
+      "description": "Delivery delayed by 3 weeks to rebuild pipeline."
+    }
+  },
+  "guidance": {
+    "do_not_do": "Do not skip validating source data at project start.",
+    "do_instead": "Run a quick data profiling step and present findings to client before design."
+  },
+  "tags": [
+    "Data",
+    "Integration",
+    "Validation"
+  ],
+  "created_at": "2025-08-28T22:52:52.702575Z",
+  "author": "",
+  "rag": {
+    "text": "Lesson: Do not assume client data is clean. Summary: We assumed client’s CSV exports were reliable. Midway, we found missing IDs and duplicate rows, forcing rework of our entire pipeline.. Context: phase=Build, client=Biotech Co., industries=Biotech, type=MVP. What happened: Initial integration showed data gaps and duplicates that broke workflows.. Root cause: No upfront validation of client data quality.. (category: Data Quality) Impact: level=4, Delivery delayed by 3 weeks to rebuild pipeline.. Do NOT: Do not skip validating source data at project start.. Do instead: Run a quick data profiling step and present findings to client before design..",
+    "meta": {
+      "phase": "Build",
+      "industries": [
+        "Biotech"
+      ],
+      "tags": [
+        "Data",
+        "Integration",
+        "Validation"
+      ],
+      "created_at": "2025-08-28T22:52:52.702575Z",
+      "author": ""
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "8f2d5af1-7ed3-4b27-b9b7-91d4adfb42a6",
+  "title": "Do not ignore timezone differences",
+  "summary": "We scheduled daily standups without considering team spread across 3 continents, leading to poor participation.",
+  "phase": "Execution",
+  "client_name": "Global Pharma",
+  "industries": [
+    "Pharma"
+  ],
+  "project_type": "POC",
+  "incident": {
+    "what_happened": "Team members missed meetings due to inconvenient times.",
+    "root_cause": "No attention paid to distributed team timezone needs.",
+    "root_cause_category": "Team Coordination",
+    "impact": {
+      "level": 2,
+      "description": "Lost collaboration efficiency and slowed decisions."
+    }
+  },
+  "guidance": {
+    "do_not_do": "Do not schedule core ceremonies in one timezone only.",
+    "do_instead": "Set up rotating meeting times or async standups with tools."
+  },
+  "tags": [
+    "Team",
+    "Coordination",
+    "Remote"
+  ],
+  "created_at": "2025-08-28T22:52:52.702600Z",
+  "author": "",
+  "rag": {
+    "text": "Lesson: Do not ignore timezone differences. Summary: We scheduled daily standups without considering team spread across 3 continents, leading to poor participation.. Context: phase=Execution, client=Global Pharma, industries=Pharma, type=POC. What happened: Team members missed meetings due to inconvenient times.. Root cause: No attention paid to distributed team timezone needs.. (category: Team Coordination) Impact: level=2, Lost collaboration efficiency and slowed decisions.. Do NOT: Do not schedule core ceremonies in one timezone only.. Do instead: Set up rotating meeting times or async standups with tools..",
+    "meta": {
+      "phase": "Execution",
+      "industries": [
+        "Pharma"
+      ],
+      "tags": [
+        "Team",
+        "Coordination",
+        "Remote"
+      ],
+      "created_at": "2025-08-28T22:52:52.702600Z",
+      "author": ""
+    }
+  }
+}

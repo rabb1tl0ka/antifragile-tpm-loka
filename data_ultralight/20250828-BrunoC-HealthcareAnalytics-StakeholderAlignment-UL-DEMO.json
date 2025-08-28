@@ -1,0 +1,47 @@
+{
+  "id": "98841cf3-406a-4867-a3ac-4747cc61814a",
+  "title": "Do not skip stakeholder alignment in Kickoff",
+  "summary": "We rushed through kickoff without clarifying success criteria. Different stakeholders had conflicting expectations, leading to rework and frustration. Lesson: invest in alignment upfront.",
+  "phase": "Kickoff",
+  "client_name": "Health Co.",
+  "industries": [
+    "Healthcare"
+  ],
+  "project_type": "POC",
+  "incident": {
+    "what_happened": "Kickoff was cut short due to scheduling pressure. Later in the project, stakeholders revealed they had different definitions of success and scope. This led to delays and scope creep.",
+    "root_cause": "Stakeholders were not aligned on success criteria at kickoff.",
+    "root_cause_category": "Stakeholder Misalignment",
+    "impact": {
+      "level": 5,
+      "description": "We lost the client because of this."
+    }
+  },
+  "guidance": {
+    "do_not_do": "Do not start project work without confirming all key stakeholders share the same definition of success.",
+    "do_instead": "Run a kickoff alignment workshop where each stakeholder states expectations, risks, and success criteria."
+  },
+  "tags": [
+    "Kickoff",
+    "Communication",
+    "Stakeholders"
+  ],
+  "created_at": "2025-08-28T22:40:18.695888+00:00",
+  "author": "",
+  "rag": {
+    "text": "Lesson: Do not skip stakeholder alignment in Kickoff. Summary: We rushed through kickoff without clarifying success criteria. Different stakeholders had conflicting expectations, leading to rework and frustration. Lesson: invest in alignment upfront. Context: phase=Kickoff, client=Health Co., industries=Healthcare, type=POC. What happened: Kickoff was cut short due to scheduling pressure. Later in the project, stakeholders revealed they had different definitions of success and scope. This led to delays and scope creep. Root cause: Stakeholders were not aligned on success criteria at kickoff. (category: Stakeholder Misalignment) Impact: level=5, We lost the client because of this.. Do NOT: Do not start project work without confirming all key stakeholders share the same definition of success. Do instead: Run a kickoff alignment workshop where each stakeholder states expectations, risks, and success criteria.",
+    "meta": {
+      "phase": "Kickoff",
+      "industries": [
+        "Healthcare"
+      ],
+      "tags": [
+        "Kickoff",
+        "Communication",
+        "Stakeholders"
+      ],
+      "created_at": "2025-08-28T22:40:18.695888+00:00",
+      "author": ""
+    }
+  }
+}

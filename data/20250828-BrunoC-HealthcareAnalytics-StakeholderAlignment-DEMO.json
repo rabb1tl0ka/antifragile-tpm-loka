@@ -1,0 +1,116 @@
+{
+  "id": "98841cf3-406a-4867-a3ac-4747cc61814a",
+  "title": "Do not skip stakeholder alignment in Kickoff",
+  "summary": "We rushed through kickoff without clarifying success criteria. Different stakeholders had conflicting expectations, leading to rework and frustration. Lesson: invest in alignment upfront.",
+  "phase": "Kickoff",
+  "area": "Communication",
+  "industries": [
+    "Healthcare"
+  ],
+  "severity": "P2",
+  "confidence": 4,
+  "evidence_strength": "Anecdote",
+  "lesson_type": "Stakeholder Misalignment",
+  "guidance": {
+    "do_not_do": "Do not start project work without confirming all key stakeholders share the same definition of success.",
+    "do_instead": "Run a kickoff alignment workshop where each stakeholder states expectations, risks, and success criteria.",
+    "checklists": [
+      "Identify key stakeholders",
+      "Document success criteria",
+      "Review risks openly"
+    ]
+  },
+  "incident": {
+    "context": {
+      "project_goal": "Deploy analytics dashboard",
+      "client_profile": {
+        "industry": "Healthcare",
+        "size": "Mid-Market",
+        "delivery_model": "Fixed Bid"
+      }
+    },
+    "what_happened": "Kickoff was cut short due to scheduling pressure. Later in the project, stakeholders revealed they had different definitions of success and scope. This led to delays and scope creep.",
+    "root_cause": "Stakeholders were not aligned on success criteria at kickoff.",
+    "root_cause_category": "Stakeholder Misalignment",
+    "timeline": {
+      "start": "2025-08-01",
+      "end": "2025-08-15"
+    }
+  },
+  "impact": {
+    "time_hours": 40,
+    "cost_currency": {
+      "amount": 5000,
+      "currency": "USD"
+    },
+    "quality": "Dashboard MVP was delayed and required redesign.",
+    "client_sentiment_before": 2,
+    "client_sentiment_after": -1,
+    "mttd_hours": 72,
+    "mttr_hours": 120
+  },
+  "signals": [
+    "Kickoff rushed",
+    "Stakeholders missing from meeting"
+  ],
+  "controls": [
+    {
+      "name": "Stakeholder Alignment Workshop",
+      "kind": "preventative",
+      "is_automatable": false
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "Doc",
+      "title": "Kickoff Notes",
+      "url_or_path": "docs/kickoff_notes.md",
+      "confidentiality": "Internal"
+    }
+  ],
+  "tags": [
+    "Kickoff",
+    "Communication",
+    "Stakeholders"
+  ],
+  "authorship": {
+    "authors": [
+      {
+        "display": "Bruno C.",
+        "role": "TPM",
+        "org": "Loka"
+      }
+    ],
+    "review": {
+      "status": "approved",
+      "reviewer": "TPM Lead",
+      "notes": "Good example",
+      "date": "2025-08-28"
+    }
+  },
+  "confidentiality": "Internal",
+  "created_at": "2025-08-28T14:52:24.330923Z",
+  "updated_at": "2025-08-28T14:52:24.330930Z",
+  "version": "1.0.0",
+  "rag": {
+    "text": "Lesson: Do not skip stakeholder alignment in Kickoff. Summary: We rushed through kickoff without clarifying success criteria. Different stakeholders had conflicting expectations, leading to rework and frustration. Lesson: invest in alignment upfront. Context: phase=Kickoff, area=Communication, industries=Healthcare, severity=P2. What happened: Kickoff was cut short due to scheduling pressure. Later in the project, stakeholders revealed they had different definitions of success and scope. This led to delays and scope creep. Root cause: Stakeholders were not aligned on success criteria at kickoff. (category: Stakeholder Misalignment) Impact: time_impact≈40h, cost≈5000 USD, client_sentiment 2→-1. Do NOT: Do not start project work without confirming all key stakeholders share the same definition of success. Do instead: Run a kickoff alignment workshop where each stakeholder states expectations, risks, and success criteria. Checks: Identify key stakeholders; Document success criteria; Review risks openly.",
+    "meta": {
+      "phase": "Kickoff",
+      "area": "Communication",
+      "industries": [
+        "Healthcare"
+      ],
+      "severity": "P2",
+      "tags": [
+        "Kickoff",
+        "Communication",
+        "Stakeholders"
+      ],
+      "first_validated": "2025-08-28",
+      "last_validated": "2025-08-28",
+      "project_size": "M",
+      "team_composition": "",
+      "delivery_model": "Fixed Bid"
+    }
+  }
+}

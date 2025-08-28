@@ -1,0 +1,26 @@
+# --- Python cruft ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+
+# --- OS/editor cruft ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# --- Data: keep only files with 'DEMO' in the name ---
+/data/*
+!/data/*DEMO*
+
+/data_ultralight/*
+!/data_ultralight/*DEMO*
+
+# --- RAG stores: ignore contents but keep folders via .gitkeep ---
+/rag_store/*
+!/rag_store/.gitkeep
+
+/rag_store_ultralight/*
+!/rag_store_ultralight/.gitkeep

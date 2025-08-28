@@ -1,0 +1,47 @@
+{
+  "id": "32d9f6b2-98a2-4f07-8bb9-ecb12fd0eaa3",
+  "title": "Do not underestimate compliance reviews",
+  "summary": "We thought regulatory review would take 1 week, but it took 1 month. Project stalled until approval came through.",
+  "phase": "Planning",
+  "client_name": "MedTech Inc.",
+  "industries": [
+    "Healthcare"
+  ],
+  "project_type": "Pilot",
+  "incident": {
+    "what_happened": "Regulatory compliance process was longer than expected, blocking deployment.",
+    "root_cause": "Incorrect assumptions about compliance review timelines.",
+    "root_cause_category": "Compliance",
+    "impact": {
+      "level": 3,
+      "description": "Project go-live delayed by 4 weeks."
+    }
+  },
+  "guidance": {
+    "do_not_do": "Do not assume compliance review is trivial.",
+    "do_instead": "Include realistic compliance timelines in planning and involve legal team early."
+  },
+  "tags": [
+    "Compliance",
+    "Planning",
+    "Healthcare"
+  ],
+  "created_at": "2025-08-28T22:52:52.702593Z",
+  "author": "",
+  "rag": {
+    "text": "Lesson: Do not underestimate compliance reviews. Summary: We thought regulatory review would take 1 week, but it took 1 month. Project stalled until approval came through.. Context: phase=Planning, client=MedTech Inc., industries=Healthcare, type=Pilot. What happened: Regulatory compliance process was longer than expected, blocking deployment.. Root cause: Incorrect assumptions about compliance review timelines.. (category: Compliance) Impact: level=3, Project go-live delayed by 4 weeks.. Do NOT: Do not assume compliance review is trivial.. Do instead: Include realistic compliance timelines in planning and involve legal team early..",
+    "meta": {
+      "phase": "Planning",
+      "industries": [
+        "Healthcare"
+      ],
+      "tags": [
+        "Compliance",
+        "Planning",
+        "Healthcare"
+      ],
+      "created_at": "2025-08-28T22:52:52.702593Z",
+      "author": ""
+    }
+  }
+}
