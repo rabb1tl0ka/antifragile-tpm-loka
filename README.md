@@ -50,7 +50,28 @@ requirements.txt        # install this first
 README.md
 ```
 
-## Test with full RAG
+## 🚀 Quick Start
+
+Clone the repo and run the setup script:
+
+```bash
+git clone https://github.com/rabb1tl0ka/antifragile-tpm-loka.git
+cd antifragile-tpm-loka
+```
+
+On macOS/Linux, make the scripts executable the first time:
+
+```bash
+chmod +x setup.sh run-demo-ultralight.sh run-demo.sh
+```
+
+Then setup and run:
+```bash
+./setup.sh
+./run-demo-ultralight.sh
+```
+
+## Manual execution for RAG
 Validate all lessons:
 ```bash
 python3 rag.py validate --data ./data
@@ -66,7 +87,7 @@ Query it:
 python3 rag.py query --store ./rag_store --q "Kickoff for a biotech client; avoid data mistakes" -k 5
 ```
 
-## Test with Ultralight RAG
+## Manual execution for Ultra-Light RAG
 
 Just run the demo:
 ```bash
