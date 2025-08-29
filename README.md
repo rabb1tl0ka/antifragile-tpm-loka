@@ -15,6 +15,8 @@ The goal of this repo is to be a place where everyone gains from other's mistake
 - The build script validates JSON, **writes a `.rag` text file next to each JSON**, and builds a **FAISS** index using **sentence-transformers (local)**.
 - No external services required.
 
+![RAG Ultralight Demo](./docs/antifragile-tpm-loka-ultralight-demo.png)
+
 ## Two flavors of RAG
 
 We now maintain **two parallel scripts** depending on the level of detail you want in your lessons:
