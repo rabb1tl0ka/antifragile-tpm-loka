@@ -418,29 +418,47 @@ def cmd_query(args):
     candidates.sort(key=lambda r: r["adjusted"], reverse=True)
     top = candidates[:k]
 
+    # Create the JSON payload response
+    payload = []
+    for r in top:
+        try:
+            with open(r["path"], "r", encoding="utf-8") as f:
+                doc = json.load(f)
+        except Exception:
+            doc = {}
+        g = doc.get("guidance", {}) or {}
+        payload.append({
+            "rank": len(payload) + 1,
+            "id": r["id"],
+            "title": r["title"],
+            "path": r["path"],
+            "impact": r["impact"],
+            "cosine": r["cosine"],
+            "adjusted": r["adjusted"],
+            "guidance": {
+                "do_not_do": g.get("do_not_do", ""),
+                "do_instead": g.get("do_instead", "")
+            }
+        })
+
+    if args.json_response:
+        print(json.dumps({"query": args.q, "k": k, "results": payload}, ensure_ascii=False, indent=2))
+        return 0
+    
+    # default: human-readable response
     print(f"\nTop {k} results for: {args.q}")
     print(f"(using impact-slope={slope}, pool={pool})\n")
-    for rank, r in enumerate(top, start=1):
-        print(f"{rank}. {r['title']}  (adj={r['adjusted']:.4f} | cos={r['cosine']:.4f} | impact={r['impact']})")
-        print(f"   id: {r['id']}")
-        print(f"   file: {r['path']}\n")
-
-        # Print guidance fields
-        try:
-            with open(r['path'], "r", encoding="utf-8") as f:
-                doc = json.load(f)
-            g = doc.get("guidance", {})
-            if g:
-                do_not = g.get("do_not_do", "")
-                do_instead = g.get("do_instead", "")
-                if do_not:
-                    print(f"   ❌ Do NOT: {do_not}")
-                if do_instead:
-                    print(f"   ✅ Do instead: {do_instead}")
-        except Exception as e:
-            print(f"   ⚠️ Could not load guidance: {e}")
-
-        print()  # blank line after each result
+    for item in payload:
+        print(f"{item['rank']}. {item['title']}  "
+            f"(adj={item['adjusted']:.4f} | cos={item['cosine']:.4f} | impact={item['impact']})")
+        print(f"   id: {item['id']}")
+        print(f"   file: {item['path']}")
+        if item["guidance"]["do_not_do"]:
+            print(f"   ❌ Do NOT: {item['guidance']['do_not_do']}")
+        if item["guidance"]["do_instead"]:
+            print(f"   ✅ Do instead: {item['guidance']['do_instead']}")
+        print() # blank line on purpose after each result
+    return 0
 
 # ---------- main ----------
 def main():
@@ -467,6 +485,7 @@ def main():
     q.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2")
     q.add_argument("--impact-slope", type=float, default=0.10, help="Re-ranking slope for impact weighting (e.g., 0.1)")
     q.add_argument("--pool", type=int, default=None, help="Candidate pool size for re-ranking (default = max(k*4, 20))")
+    q.add_argument("--json-response", action="store_true", help="JSON response with the top-k results")
 
     q.set_defaults(func=cmd_query)
 
