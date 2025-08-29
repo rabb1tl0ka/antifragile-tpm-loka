@@ -3,6 +3,11 @@ set -e
 
 echo "🚀 Running Antifragile TPM Demo..."
 
+# Activate local virtual environment if it exists
+if [ -d ".venv" ]; then
+  source .venv/bin/activate
+fi
+
 # Step 1: Validate data
 echo "🔍 Validating data in ./data..."
 python3 rag.py validate --data ./data
