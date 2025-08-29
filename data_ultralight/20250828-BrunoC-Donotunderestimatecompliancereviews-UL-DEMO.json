@@ -13,7 +13,7 @@
     "root_cause": "Incorrect assumptions about compliance review timelines.",
     "root_cause_category": "Compliance",
     "impact": {
-      "level": 3,
+      "level": 1,
       "description": "Project go-live delayed by 4 weeks."
     }
   },
