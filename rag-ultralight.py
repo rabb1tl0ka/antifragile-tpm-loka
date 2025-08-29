@@ -379,15 +379,51 @@ def cmd_query(args):
 
     index = faiss.read_index(str(index_path))
     k = max(1, args.k)
-    D, I = index.search(xq, k)
 
-    print(f"\nTop {k} results for: {args.q}\n")
-    for rank, (dist, idx) in enumerate(zip(D[0], I[0]), start=1):
+    # If user sent --pool, fall back to heuristic max(k*4, 20).
+    # Else, if there's no --pool, respect their choice but ensure it's never < k.
+    # (We do NOT force k*4 here because an explicit --pool is considered intentional.)
+    if args.pool is None:
+        pool = max(k * 4, 20)
+    else:
+        pool = max(k, args.pool)
+
+    D, I = index.search(xq, pool)
+
+    # Impact-aware re-ranking: semantic first, impact as a gentle nudge
+    slope = float(args.impact_slope)
+    candidates = []
+    for dist, idx in zip(D[0], I[0]):
         if idx == -1:
             continue
-        print(f"{rank}. {titles[idx]}  (score={float(dist):.4f})")
-        print(f"   id: {ids[idx]}")
-        print(f"   file: {paths[idx]}\n")
+        try:
+            with open(paths[idx], "r", encoding="utf-8") as f:
+                doc = json.load(f)
+            impact_level = int(doc.get("incident", {}).get("impact", {}).get("level", 3))
+        except Exception:
+            impact_level = 3
+
+        adjusted = float(dist) * (1.0 + slope * (impact_level - 3))
+        candidates.append({
+            "idx": int(idx),
+            "title": titles[idx],
+            "id": ids[idx],
+            "path": paths[idx],
+            "cosine": float(dist),
+            "impact": impact_level,
+            "adjusted": adjusted,
+        })
+
+    # Re-rank by adjusted score and keep top-k
+    candidates.sort(key=lambda r: r["adjusted"], reverse=True)
+    top = candidates[:k]
+
+    print(f"\nTop {k} results for: {args.q}")
+    print(f"(using impact-slope={slope}, pool={pool})\n")
+    for rank, r in enumerate(top, start=1):
+        print(f"{rank}. {r['title']}  (adj={r['adjusted']:.4f} | cos={r['cosine']:.4f} | impact={r['impact']})")
+        print(f"   id: {r['id']}")
+        print(f"   file: {r['path']}\n")
 
 # ---------- main ----------
 def main():
@@ -412,6 +448,9 @@ def main():
     q.add_argument("--q", required=True, help="Natural language query")
     q.add_argument("-k", type=int, default=5, help="Top-k results")
     q.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2")
+    q.add_argument("--impact-slope", type=float, default=0.10, help="Re-ranking slope for impact weighting (e.g., 0.1)")
+    q.add_argument("--pool", type=int, default=None, help="Candidate pool size for re-ranking (default = max(k*4, 20))")
+
     q.set_defaults(func=cmd_query)
 
     args = p.parse_args()

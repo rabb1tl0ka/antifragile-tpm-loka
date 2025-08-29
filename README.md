@@ -38,6 +38,20 @@ Both scripts support the same commands: `validate`, `build-index`, and `query`.
 - Use `--reset` with either script if you want to **clear and rebuild** the output folder.  
 - If you run both systems side-by-side, use **different `--out` directories** (e.g. `./rag_store` vs. `./rag_store_ultralight`) so the indices don’t overwrite each other.
 
+## Impact-aware re-ranking available on the ultralight only version (for now)
+
+- The **ultralight query** command now re-ranks results by combining:
+  - **Cosine similarity** (semantic match, dominant factor).
+  - **Incident Impact level** (1–5) as a gentle multiplier.
+
+- This means that semantically close lessons always "win", but higher-impact lessons
+  get nudged upward when relevance is similar.
+
+- Defaults:
+  - `--impact-slope 0.1` → each step above/below impact=3 changes score by ±10%.
+  - `--pool max(k*4, 20)` → query pulls a larger candidate set from FAISS then re-ranks by adjusted score (and selects the top `k`).
+
+
 ## Repo layout
 ```
 ./data                  # TPM-authored lessons (JSON)
@@ -96,12 +110,21 @@ python3 rag-ultralight.py validate --data ./data_ultralight
 We suggest to keep the ultralight store separate from the most complete one.
 Here's how:
 ```bash
-python3 rag-ultralight.py build-index --data ./data_ultralight --out ./rag_store_ultralight --reset --write-back
+python3 rag-ultralight.py build-index --data ./data_ultralight \
+  --out ./rag_store_ultralight --reset --write-back
 ```
 
-Query it:
+By default, queries are re-ranked by semantic similarity first and then `incident.impact` weighting comes into play (impact-slope=0.1, pool=max(k*4, 20))
 ```bash
-python3 rag-ultralight.py query --store ./rag_store_ultralight --q "Kickoff for a biotech client; avoid data mistakes" -k 5
+python3 rag-ultralight.py query --store ./rag_store_ultralight \
+  --q "Kickoff for a biotech client; avoid data mistakes" -k 5
+```
+
+Here we use a query with a different impact slope and a bigger pool of candidate lessons to be re-ranked by `incident.impact`.
+```bash
+python3 rag-ultralight.py query --store ./rag_store_ultralight \
+  --q "Kickoff for a biotech client; avoid data mistakes" -k 5 \
+  --impact-slope 0.05 --pool 50
 ```
 
 ## How you can contribute
