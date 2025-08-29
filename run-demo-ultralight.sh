@@ -3,6 +3,11 @@ set -e
 
 echo "🚀 Running Antifragile TPM Ultralight Demo..."
 
+# Activate local virtual environment if it exists
+if [ -d ".venv" ]; then
+  source .venv/bin/activate
+fi
+
 # Step 1: Validate data
 echo "🔍 Validating data in ./data_ultralight..."
 python3 rag-ultralight.py validate --data ./data_ultralight
