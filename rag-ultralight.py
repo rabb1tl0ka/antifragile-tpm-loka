@@ -425,6 +425,23 @@ def cmd_query(args):
         print(f"   id: {r['id']}")
         print(f"   file: {r['path']}\n")
 
+        # Print guidance fields
+        try:
+            with open(r['path'], "r", encoding="utf-8") as f:
+                doc = json.load(f)
+            g = doc.get("guidance", {})
+            if g:
+                do_not = g.get("do_not_do", "")
+                do_instead = g.get("do_instead", "")
+                if do_not:
+                    print(f"   ❌ Do NOT: {do_not}")
+                if do_instead:
+                    print(f"   ✅ Do instead: {do_instead}")
+        except Exception as e:
+            print(f"   ⚠️ Could not load guidance: {e}")
+
+        print()  # blank line after each result
+
 # ---------- main ----------
 def main():
     p = argparse.ArgumentParser(description="UltraLight Lessons RAG")
