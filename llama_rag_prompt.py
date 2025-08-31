@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-import subprocess, json, shlex, textwrap, sys, shutil, textwrap, threading, queue, time, re
+import subprocess
+import json
+import shlex
+import textwrap
+import sys
+import shutil
+import textwrap
+import re
+import argparse
+from pathlib import Path
+import logging
 
+log = logging.getLogger(__name__)
 
-# --- CONFIG ---
-RAG_SCRIPT = "./rag-ultralight.py"
-STORE = "./rag_store_ultralight"
-LLAMA_BIN = "../llama.cpp/build/bin/llama-cli"
-MODEL = "../ai-llmacpp/models/llama/meta-llama-3.1-8b-instruct-q5_k_m.gguf"
-TOP_K = 5
-
-def run_rag(query: str, k: int = TOP_K):
+def run_rag(query: str, rag_script: str, rag_store: str, k: int):
     """Run rag-ultralight.py query and return parsed JSON results"""
     cmd = (
-        f"python3 {shlex.quote(RAG_SCRIPT)} query "
-        f"--store {shlex.quote(STORE)} "
+        f"python3 {shlex.quote(rag_script)} query "
+        f"--store {shlex.quote(rag_store)} "
         f"--q {shlex.quote(query)} "
         f"-k {k} "
         f"--json-response"
@@ -33,15 +37,15 @@ def build_context(results: list, max_len: int = 200) -> str:
         if len(do_yes) > max_len: do_yes = do_yes[:max_len-1] + "…"
         blocks.append(
             f"[{r['rank']}] {r['title']} (impact {r['impact']})\n"
-            f"❌ {do_not}\n"
-            f"✅ {do_yes}"
+            f"DO NOT: {do_not}\n"
+            f"DO: {do_yes}"
         )
     return "\n\n".join(blocks)
 
 def query_llama(system_msg: str, 
                 user_msg: str,
-                llama_bin: str = LLAMA_BIN,
-                model_path: str = MODEL,
+                llama_bin: str,
+                model_path: str,
                 n_predict: int = 512,
                 timeout_sec: int = 300) -> str:
     """
@@ -51,6 +55,9 @@ def query_llama(system_msg: str,
 
     if not shutil.which(llama_bin):
         raise FileNotFoundError(f"llama binary not found: {llama_bin}")
+    
+    if not Path(model_path).is_file():
+        raise FileNotFoundError(f"model file not found: {model_path}")
     
      # Clean whitespace
     system_msg = textwrap.dedent(system_msg).strip()
@@ -70,11 +77,15 @@ def query_llama(system_msg: str,
     ]
 
     # Capture stdout+stderr; llama.cpp prints loader info to stderr
+    if log.isEnabledFor(logging.DEBUG):
+        _stderr = sys.stderr
+    else:
+        _stderr = subprocess.DEVNULL
+
     proc = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
-        #stderr=subprocess.PIPE,
-        stderr=sys.stderr,           # <- stream logs live
+        stderr=_stderr,
         text=True,
         bufsize=1,
     )
@@ -107,24 +118,68 @@ def clean_answer(ans: str) -> str:
     return ans
 
 def main():
-    if len(sys.argv) < 2:
-        user_q = input("Enter your question: ").strip()
-    else:
-        user_q = " ".join(sys.argv[1:])
+
+    parser = argparse.ArgumentParser(description="Run RAG + Llama pipeline")
+
+    parser.add_argument(
+        "--rag-script",
+        default="./rag-ultralight.py",
+        help="Path to RAG script (default: ./rag-ultralight.py)"
+    )
+    parser.add_argument(
+        "--store",
+        default="./rag_store_ultralight",
+        help="Path to RAG store (default: ./rag_store_ultralight)"
+    )
+    parser.add_argument(
+        "--llama-bin",
+        default="../llama.cpp/build/bin/llama-cli",
+        help="Path to llama.cpp binary (default: ../llama.cpp/build/bin/llama-cli)"
+    )
+    parser.add_argument(
+        "--model-path",
+        default="../ai-llmacpp/models/llama/meta-llama-3.1-8b-instruct-q5_k_m.gguf",
+        help="Path to model file (default: ../ai-llmacpp/models/llama/meta-llama-3.1-8b-instruct-q5_k_m.gguf)"
+    )
+    parser.add_argument(
+        "--k",
+        type=int,
+        default=5,
+        help="Top k results to get from RAG"
+    )
+    parser.add_argument(
+        "-q", "--q", "--question",
+        dest="question",
+        required=True,
+        help="The question you want to ask"
+    )
+    parser.add_argument("-v", "--verbose", 
+        action="store_true",
+        help="See debug and troubleshooting information")
+
+    args = parser.parse_args()
+    
+    # Configure logging based on --verbose
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(levelname)s: %(name)s: %(message)s"
+    )
+
+    log.debug("CLI args: %s", vars(args))   # only prints when -v/--verbose is set
 
     # 1) run RAG
     try:
-        print(f"Querying RAG with query: {user_q}")
-        rag = run_rag(user_q, TOP_K)
+        print(f"Querying RAG with query: {args.question}")
+        rag = run_rag(args.question, args.rag_script, args.store, args.k)
         results = rag.get("results", [])
 
         if not results:
-            print("⚠️ No RAG results found.")
+            print("No RAG results found.")
             return
     except:
-        print("❌ RAG. Something went wrong.")
+        print("Exception RAG. Something went wrong.")
         return
-    print("✅ RAG successful")
+    print("RAG successful")
 
     # 2) build context
     print("Building context...")
@@ -132,35 +187,30 @@ def main():
         context = build_context(results)
         print(context)
     except:
-        print("❌ Context. Something went wrong.")
+        print("Exception Context. Something went wrong.")
         return
     
-    print("✅ Building context successful")
+    print("Building context successful")
 
     # 3) final system prompt
     system_msg = (
-        "You are an experienced Technical Project Manager coach. "
-        "When answering, speak directly to the user as if mentoring them in real-time. "
-        "Balance empathy and authority: acknowledge challenges, then guide with practical next steps. "
-        "Be concise but conversational, like a trusted advisor. "
-        "Do not quote the question or lessons; instead, translate them into coaching advice."
-        "Your mission is to help users avoid the mistakes that the lessons of what NOT to do teach."
-        "Here's the lessons, each has 'Do NOT' and 'Do instead': {context}"
-        "Use the lessons of what NOT to do in your answer."
-        "Do not give more than 5 key points."
+        f"You are an experienced Technical Project Manager coach. "
+        f"When answering, speak directly to the user as if mentoring them in real-time. "
+        f"Balance empathy and authority: acknowledge challenges, then guide with practical next steps. "
+        f"Be concise but conversational, like a trusted advisor. "
+        f"Do not quote the question or lessons; instead, translate them into coaching advice."
+        f"Your mission is to help users avoid errors and mistakes. You need to look up the lessons prefaced with DO NOT."
+        f"Here's the lessons, each has 'Do NOT' and 'Do instead': {context}"
+        f"Do not give more than 5 key points."
     )
 
-    user_msg = f"Answer this question: {user_q}"
+    user_msg = f"Answer this question: {args.question}"
 
     # 4) query llama.cpp
-    try:
-        print("Querying llama.cpp ...")
-        answer = query_llama(system_msg, user_msg)
-        answer = clean_answer(answer)
-        print(f"✅ LLM Answer: {answer}")
-    except Exception as e:
-        print(f"❌ LLM error: {e}")
-        return
-
+    print("Querying llama.cpp ...")
+    answer = query_llama(system_msg, user_msg, args.llama_bin, args.model_path)
+    answer = clean_answer(answer)
+    print(f"LLM Answer: {answer}")
+    
 if __name__ == "__main__":
     main()
