@@ -10,6 +10,7 @@ import re
 import argparse
 from pathlib import Path
 import logging
+from typing import Any, Dict, List, Union, Optional
 
 log = logging.getLogger(__name__)
 
@@ -23,10 +24,24 @@ def run_rag(query: str, rag_script: str, rag_store: str, k: int):
         f"--json-response"
     )
     raw = subprocess.check_output(cmd, shell=True, text=True)
-    print(f"RAG raw output: {raw}")
-    print("loading JSON from RAG raw output")
-    return json.loads(raw)
+    log.debug("RAG raw output: %s", raw)
+    data = json.loads(raw)
+
+    if not isinstance(data, dict):
+        raise TypeError(
+        "rag-ultralight.py --json-response must return a JSON object with keys 'query' and 'results', "
+        f"but got {type(data).__name__}. Raw snippet: {raw[:240]}…"
+        )
+    if "results" not in data or not isinstance(data["results"], list):
+        raise KeyError(
+        "Invalid RAG JSON: missing 'results' list. Expected {\"query\": str, \"results\": [ ... ]}. "
+        f"Keys present: {list(data.keys())}"
+        )
+    if "query" not in data:
+        log.warning("RAG JSON missing 'query' field; proceeding with empty string.")
+        data["query"] = query
     
+    return data
 
 def build_context(results: list, max_len: int = 200) -> str:
     blocks = []
@@ -41,6 +56,71 @@ def build_context(results: list, max_len: int = 200) -> str:
             f"DO: {do_yes}"
         )
     return "\n\n".join(blocks)
+
+def to_compact_context(
+    rag: Dict[str, Any],
+    *,
+    include_titles: bool = True,
+    max_items: Optional[int] = None,
+    min_impact: int = 0,
+    sort_by: str = "impact_desc_rank_asc",
+) -> Dict[str, Any]:
+    """
+    Convert *stable* RAG output (object) into a compact CONTEXT payload.
+
+    Requires shape: {"query": str, "results": [ {...}, ... ]}
+    Keeps only: rank (r), impact, optional title, do_not, do_instead
+    """
+    if not isinstance(rag, dict) or "results" not in rag or not isinstance(rag["results"], list):
+        raise ValueError(
+            "to_compact_context expects an object with a 'results' list. "
+            f"Got: {type(rag).__name__} with keys {list(rag.keys()) if isinstance(rag, dict) else 'N/A'}"
+        )
+
+    query = rag.get("query", "")
+    results = rag["results"]
+
+    def norm_item(r: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        if not isinstance(r, dict):
+            return None
+        impact = int(r.get("impact", 0) or 0)
+        if impact < min_impact:
+            return None
+        g = r.get("guidance", {}) or {}
+        do_not = g.get("do_not_do") or g.get("do_not") or ""
+        do_instead = g.get("do_instead") or ""
+        item = {
+            "r": int(r.get("rank", 0) or 0),
+            "impact": impact,
+            "do_not": str(do_not).strip(),
+            #"do_instead": str(do_instead).strip(), #  <- we're hiding the do_instead to not influence the 
+            #model
+        }
+        if include_titles and "title" in r:
+            item["title"] = str(r["title"]).strip()
+        return item
+
+    items: List[Dict[str, Any]] = []
+    for r in results:
+        ni = norm_item(r)
+        if ni:
+            items.append(ni)
+
+    if sort_by == "impact_desc_rank_asc":
+        items.sort(key=lambda x: (-x["impact"], x["r"]))
+    elif sort_by == "rank_asc":
+        items.sort(key=lambda x: x["r"])  # leave as-is otherwise
+
+    if max_items is not None:
+        items = items[:max_items]
+
+    return {"query": query, "results": items}
+
+
+def dumps_compact(obj: Any) -> str:
+    """Stable, compact JSON for prompts (saves tokens)."""
+    return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+
 
 def query_llama(system_msg: str, 
                 user_msg: str,
@@ -75,6 +155,15 @@ def query_llama(system_msg: str,
         "--system-prompt", system_msg,
         "--prompt", user_msg,
     ]
+
+    cmd.extend([
+        "--stop", "CONTEXT_START",
+        "--stop", "CONTEXT_END",
+        "--stop", "QUESTION:",
+        "--stop", "Answer:",
+        "--stop", "Answers:",
+    ])
+
 
     # Capture stdout+stderr; llama.cpp prints loader info to stderr
     if log.isEnabledFor(logging.DEBUG):
@@ -156,6 +245,11 @@ def main():
     parser.add_argument("-v", "--verbose", 
         action="store_true",
         help="See debug and troubleshooting information")
+    
+    parser.add_argument("--no-titles", 
+        action="store_true", 
+        default=True,
+        help="Do not include lesson titles in CONTEXT")
 
     args = parser.parse_args()
     
@@ -167,50 +261,59 @@ def main():
 
     log.debug("CLI args: %s", vars(args))   # only prints when -v/--verbose is set
 
-    # 1) run RAG
-    try:
-        print(f"Querying RAG with query: {args.question}")
-        rag = run_rag(args.question, args.rag_script, args.store, args.k)
-        results = rag.get("results", [])
-
-        if not results:
-            print("No RAG results found.")
-            return
-    except:
-        print("Exception RAG. Something went wrong.")
+    # 1) RAG
+    log.info("Querying RAG…")
+    rag = run_rag(args.question, args.rag_script, args.store, args.k)
+    results = rag.get("results", [])
+    if not results:
+        print("No RAG results found.")
         return
-    print("RAG successful")
 
-    # 2) build context
-    print("Building context...")
-    try:
-        context = build_context(results)
-        print(context)
-    except:
-        print("Exception Context. Something went wrong.")
-        return
+    # 2) Compact CONTEXT
+    log.info("Building CONTEXT…")
+    context_obj = to_compact_context(rag, include_titles=not args.no_titles)
+    context_json = dumps_compact(context_obj)
+    log.debug("CONTEXT JSON: %s", context_json)
     
-    print("Building context successful")
-
     # 3) final system prompt
+
     system_msg = (
-        f"You are an experienced Technical Project Manager coach. "
-        f"When answering, speak directly to the user as if mentoring them in real-time. "
-        f"Balance empathy and authority: acknowledge challenges, then guide with practical next steps. "
-        f"Be concise but conversational, like a trusted advisor. "
-        f"Do not quote the question or lessons; instead, translate them into coaching advice."
-        f"Your mission is to help users avoid errors and mistakes. You need to look up the lessons prefaced with DO NOT."
-        f"Here's the lessons, each has 'Do NOT' and 'Do instead': {context}"
-        f"Do not give more than 5 key points."
+        "You are an expert Technical Project Manager coach.\n"
+        "TASK: Produce exactly one section: 'What NOT to do'.\n"
+        "OUTPUT FORMAT:\n"
+        "- Write 3–5 bullet points.\n"
+        "- Each bullet MUST start with: Do not \n"
+        "- Order bullets by highest impact first.\n"
+        "STYLE:\n"
+        "- Phrase each bullet in natural coaching language.\n"
+        "- Each bullet MUST include a brief consequence after an em dash (—), no period before the dash.\n"
+        "- Keep it concrete (operations, timelines, data quality, compliance) but concise.\n"
+        "HARD RULES:\n"
+        "- Use the CONTEXT only for reasoning; never copy or quote it.\n"
+        "- Output ONLY plain-text bullets (no JSON/arrays/quotes/headers/prefix hyphens or numbering).\n"
+        "- Your FIRST character must be 'D' from 'Do not '.\n"
+        "QUALITY CHECK:\n"
+        "- If any bullet lacks an em dash consequence, add one.\n"
+        "- If any line does not start with 'Do not ', rewrite it.\n"
     )
 
-    user_msg = f"Answer this question: {args.question}"
+    user_msg = (
+        "CONTEXT_START\n"
+        f"{context_json}\n"
+        "CONTEXT_END\n\n"
+        f"QUESTION:\n{args.question}\n\n"
+        "From the CONTEXT, output 3–5 plain-text bullets.\n"
+        "Each MUST start with 'Do not ' and include an em dash (—) followed by a short consequence.\n"
+        "Do not include any headings, labels, or leading hyphens. The first character must be 'D'.\n"
+    )
+
 
     # 4) query llama.cpp
     print("Querying llama.cpp ...")
     answer = query_llama(system_msg, user_msg, args.llama_bin, args.model_path)
     answer = clean_answer(answer)
-    print(f"LLM Answer: {answer}")
-    
+    log.info(answer)
+
+
 if __name__ == "__main__":
     main()
