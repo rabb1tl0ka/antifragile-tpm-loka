@@ -14,7 +14,7 @@ This repo is not just a knowledge base.
 It is a **living antifragile system**:  
 - a repository of failures and lessons (negative knowledge),  
 - a set of local-first RAG tools to surface them at the right time,  
-- and a practical playbook TPMs can apply immediately.  
+- and a [practical playbook](./playbook/playbook-readme.md) TPMs can apply immediately.  
 
 Each contribution reduces fragility, expands optionality and strengthens every future project.
 
