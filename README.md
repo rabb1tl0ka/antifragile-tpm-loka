@@ -1,143 +1,108 @@
-# Antifragile Ultra-light RAG POC for TPMs at Loka (Local Only)
+# Antifragile TPM (Loka): An Ultra-Light Local RAG POC, Knowledge and Playbook for TPMs at Loka
 
-## What this is
-A tiny, local-first RAG pipeline for Loka TPMs to capture **what went wrong** and turn it into **via-negativa guardrails**.
+**Antifragile TPM** is an experiment in applying Nassim Taleb’s *Antifragile* principles to Technical Project Management at **Loka**.  
 
-> "We know a lot more what is wrong than what is right, or, phrased according to the fragile/robust classification, negative knowledge (what is wrong, what does not work) is more robust to error than positive knowledge (what is right, what works) - given that what we know today might turn out to be wrong but what we know to be wrong cannot turn out to be right, at least not easily." ~ Nassim Taleb in Antifragile
+Instead of chasing “best practices,” we capture **what not to do** and systematize lessons from failure, fragility and volatility — turning them into guardrails, options, and playbooks for TPMs.  
 
-The goal of this repo is to be a place where everyone gains from other's mistakes. 
+> “What kills me makes others stronger.” — Nassim Nicholas Taleb
 
-"What kills me, makes others stronger".
+## Why This Matters
 
-## Overview
-- Lessons learned, mistakes and errors are authored as **JSON files** via PRs and added into ./data or ./data_ultralight folders.
-- Each lesson has/gets a canonical **narrative** (`rag.text`) — ideal for embeddings.
-- The build script validates JSON, **writes a `.rag` text file next to each JSON**, and builds a **FAISS** index using **sentence-transformers (local)**.
-- No external services required.
+Loka projects often operate in **Extremistan** like biotech, life sciences and other high-complexity domains where rare events dominate outcomes.  
 
-![RAG Ultralight Demo](./docs/antifragile-tpm-loka-ultralight-demo.png)
+This repo is not just a knowledge base.  
+It is a **living antifragile system**:  
+- a repository of failures and lessons (negative knowledge),  
+- a set of local-first RAG tools to surface them at the right time,  
+- and a practical playbook TPMs can apply immediately.  
 
-## Two flavors of RAG
+Each contribution reduces fragility, expands optionality and strengthens every future project.
 
-We now maintain **two parallel scripts** depending on the level of detail you want in your lessons:
+---
 
-- **`rag.py`** → **Full schema**  
-  - Richer structure (signals, controls, more metadata).  
-  - Best when you want complete, structured lessons with deep context.  
-  - Requires more effort from contributors to fill in details.  
+## 🔑 Core Idea
 
-- **`rag-ultralight.py`** → **Ultra-light schema**  
-  - Minimal fields: title, summary, phase, incident (with impact 1–5), guidance, tags.  
-  - Impact is normalized into `{ level: 1..5, description: ... }` automatically.  
-  - Always auto-generates `rag.text` if missing.  
-  - Designed for quick contribution — lowers the barrier for TPMs.  
-  - Ideal for fast capture of “what not to do.”  
+Most PM frameworks optimize around prediction and control.  
+**I propose an antifragile inspoired way**:
 
-Both scripts support the same commands: `validate`, `build-index`, and `query`.
+- **Via Negativa** — start with what NOT to do. Subtract fragility before adding complexity.  
+- **Optionality** — keep multiple paths alive; cap downside, preserve upside.  
+- **Benefiting from Mistakes** — design systems where small errors improve resilience.  
+- **Questioning Assumptions** — hunt for absolutes; one counterexample can collapse the system.  
+- **Fragility Assessment** — measure fragility vectors and eliminate ruin exposure before optimizing.  
 
-⚠️ Important:
-- `rag-ultralight.py` does **not** support `--force-autogen`. Auto-generation is always on because the schema is minimal and always needs enrichment to be useful
-- Use `--reset` with either script if you want to **clear and rebuild** the output folder.  
-- If you run both systems side-by-side, use **different `--out` directories** (e.g. `./rag_store` vs. `./rag_store_ultralight`) so the indices don’t overwrite each other.
+This repo provides both the **infrastructure (RAG pipelines)** and the **guidance (playbook)** to make TPMs stronger under stress.
 
-## Impact-aware re-ranking available on the ultralight only version (for now)
+---
 
-- The **ultralight query** command now re-ranks results by combining:
-  - **Cosine similarity** (semantic match, dominant factor).
-  - **Incident Impact level** (1–5) as a gentle multiplier.
+## 📂 Repo Structure
 
-- This means that semantically close lessons always "win", but higher-impact lessons
-  get nudged upward when relevance is similar.
-
-- Defaults:
-  - `--impact-slope 0.1` → each step above/below impact=3 changes score by ±10%.
-  - `--pool max(k*4, 20)` → query pulls a larger candidate set from FAISS then re-ranks by adjusted score (and selects the top `k`).
-
-
-## Repo layout
 ```
-./data                  # TPM-authored lessons (JSON)
-./data_ultralight       # ultra-light TPM-authored lessons (JSON)
-./rag_store             # RAG index
-./rag_store_ultralight  # RAG index for ultra-light version
-rag.py                  # full schema RAG pipeline
-rag-ultralight.py       # ultra-light schema RAG pipeline
-requirements.txt        # install this first
-README.md
+data/                 # Full-schema antifragile lessons (JSON)
+data_ultralight/      # Ultra-light lessons (fast capture)
+rag.py                # Full RAG pipeline (structured lessons)
+rag-ultralight.py     # Ultra-light RAG pipeline (minimal schema)
+rag_store*/           # FAISS indices for RAG
+llama_rag_prompt.py   # Pipe RAG into local Llama.cpp models
+playbook/             # Loka Antifragile TPM Playbook (Markdown guides)
+docs/                 # Notes, diagrams, references
+tests/                # Query and pipeline test cases
+setup.sh              # One-time setup script
+run-demo*.sh          # Demo scripts (standard & ultralight)
 ```
+
+---
 
 ## 🚀 Quick Start
 
-Clone the repo and run the setup script:
+Clone and bootstrap:
 
 ```bash
 git clone https://github.com/rabb1tl0ka/antifragile-tpm-loka.git
 cd antifragile-tpm-loka
-```
-
-On macOS/Linux, make the scripts executable the first time:
-
-```bash
-chmod +x setup.sh run-demo-ultralight.sh run-demo.sh
-```
-
-Then setup and run:
-```bash
+chmod +x setup.sh run-demo*.sh
 ./setup.sh
 ./run-demo-ultralight.sh
 ```
 
-## Manual execution for RAG
-Validate all lessons:
+This will validate lessons, build a FAISS index and run a sample antifragile query.
+
+---
+
+## 🧪 Example Query
+
 ```bash
-python3 rag.py validate --data ./data
+python3 rag-ultralight.py query   --store ./rag_store_ultralight   --q "Kickoff for a biotech client; avoid data mistakes" -k 5
 ```
 
-Build the store:
-```bash
-python3 rag.py build-index --data ./data --out ./rag_store --reset --write-back
-```
+**Sample Output:**
+![RAG Ultralight Demo](./docs/antifragile-tpm-loka-ultralight-demo.png)
 
-Query it:
-```bash
-python3 rag.py query --store ./rag_store --q "Kickoff for a biotech client; avoid data mistakes" -k 5
-```
+---
 
-## Manual execution for Ultra-Light RAG
-Validate all lessons:
-```bash
-python3 rag-ultralight.py validate --data ./data_ultralight
-```
+## 📖 Playbook
 
-We suggest to keep the ultralight store separate from the most complete one.
-Here's how:
-```bash
-python3 rag-ultralight.py build-index --data ./data_ultralight \
-  --out ./rag_store_ultralight --reset --write-back
-```
+The **[Loka Antifragile TPM Playbook](./playbook/playbook-readme.md)** translates antifragile principles into practical practices for TPMs:
 
-By default, queries are re-ranked by semantic similarity first and then `incident.impact` weighting comes into play (impact-slope=0.1, pool=max(k*4, 20))
-```bash
-python3 rag-ultralight.py query --store ./rag_store_ultralight \
-  --q "Kickoff for a biotech client; avoid data mistakes" -k 5
-```
+1. [Via Negativa – subtraction as power](./playbook/01-via-negativa.md)  
+2. [Optionality – asymmetric bets](./playbook/02-optionality.md)  
+3. [Benefiting from Mistakes – local failures → global strength](./playbook/03-benefiting-from-mistakes.md)  
+4. [Questioning Assumptions – exposing Black Swan fragility](./playbook/04-questioning-assumptions.md)  
+5. [Fragility Assessment – mapping ruin exposure](./playbook/05-fragility-assessment.md)  
 
-Here we use a query with a different impact slope and a bigger pool of candidate lessons to be re-ranked by `incident.impact`.
-```bash
-python3 rag-ultralight.py query --store ./rag_store_ultralight \
-  --q "Kickoff for a biotech client; avoid data mistakes" -k 5 \
-  --impact-slope 0.05 --pool 50
-```
+---
 
-## How you can contribute
-1. TPMs submit a JSON file describing something that went wrong or a lesson learned in ./data or ./data_ultralight via a PR.  
-2. `validate` ensures schema compliance.  
-3. `build-index` ensures `rag.text`, writes `.rag` sidecar, appends normalized record to the store, and builds FAISS index.  
-   - With `--write-back`, JSONs are normalized (impact + rag).  
-   - With `--reset`, the store folder is cleared before rebuilding.  
-4. `query` embeds your question locally and returns the most relevant lessons.
+## 🛠️ Contributing
 
-## Notes
-- Local embedding model: `sentence-transformers/all-MiniLM-L6-v2` (fast, 384-dim).  
-- FAISS index uses inner product on normalized vectors (cosine similarity).  
-- You can switch models by passing `--model <name>` to `build-index` and `query`.
+1. TPMs submit a JSON file describing a mistake, something that went wrong or any kind of fragility discovered in a project (`data/` or `data_ultralight/`).  
+2. Run `validate` to check schema compliance.  
+3. Run `build-index` to auto-generate narratives and build the FAISS store.  
+4. Use `query` to retrieve relevant lessons when planning or reviewing projects.  
+
+Contributions = negative knowledge = stronger TPMs.  
+
+---
+
+## 📜 License
+
+[MIT](LICENSE) – Open for experimentation, learning, and adaptation.  
