@@ -1,5 +1,5 @@
-# Nassim Nicholas Taleb: A Briefing on Uncertainty, Risk, and Antifragility
-This briefing summarizes the core philosophical and practical insights of Nassim Nicholas Taleb, drawing from a collection of interviews and talks. Taleb's work fundamentally challenges conventional approaches to understanding and managing uncertainty, particularly in fields like economics, finance, medicine, and public policy. His central concept of "antifragility" proposes a framework for thriving in volatile and unpredictable environments.
+# Nassim Nicholas Taleb: A Briefing on Uncertainty, Risk and Antifragility
+This briefing summarizes the core philosophical and practical insights of Nassim Nicholas Taleb, drawing from a collection of interviews and talks. Taleb's work fundamentally challenges conventional approaches to understanding and managing uncertainty, particularly in fields like economics, finance, medicine and public policy. His central concept of "antifragility" proposes a framework for thriving in volatile and unpredictable environments.
 
 # I. The Nature of Uncertainty and "Extremistan"
 
@@ -9,7 +9,7 @@ Taleb distinguishes between two types of environments: "Mediocristan" and "Extre
 Mediocristan is characterized by bounded variance and predictable averages. In Mediocristan, extreme events have a limited impact on the overall system. "If you imagine that you would have the convention here and you bring in random selection of people from the planet, 1,000 people... and put them on a scale... the heaviest person... How much of the total would that person represent?... 0.3%." The Law of Large Numbers applies here, meaning that as sample size increases, deviations from the average have less impact. Examples include human height and weight (though human weight is more "log normal" than perfectly Gaussian).
 
 ## Extremistan
-Extremistan is characterized by fat-tailed distributions, where extreme events are rare but have disproportionately large consequences. In Extremistan, "one day in your life, to represent 98% of the variation, if you're involved in remote pay-offs." These "Black Swans" are unpredictable and can dramatically alter outcomes. Examples include financial markets, book sales, company sizes, and phenomena like wars and pandemics. In Extremistan, "everything is moved by extremes in economic life." The average (mean) in Extremistan can be misleading, as "most observation will be below the mean."
+Extremistan is characterized by fat-tailed distributions, where extreme events are rare but have disproportionately large consequences. In Extremistan, "one day in your life, to represent 98% of the variation, if you're involved in remote pay-offs." These "Black Swans" are unpredictable and can dramatically alter outcomes. Examples include financial markets, book sales, company sizes and phenomena like wars and pandemics. In Extremistan, "everything is moved by extremes in economic life." The average (mean) in Extremistan can be misleading, as "most observation will be below the mean."
 
 
 ## Key Concepts in Extremistan
@@ -21,11 +21,11 @@ Extremistan is characterized by fat-tailed distributions, where extreme events a
 # II. Antifragility: Thriving in Disorder
 Taleb's central thesis is that the opposite of "fragile" is not "robust" or "resilient," but "antifragile."
 
-Fragility: Something that is harmed by disorder, volatility, and unpredictability. It desires "calm and predictability." Fragile systems exhibit "disproportionate harm" or "accelerating harm" with respect to event size. "If I smash one of the Maseratis you see in Palo Alto against a wall at 100 miles per hour, I'm going to damage it a lot more than if I smash it 100 times at one mile per hour." Fragility is characterized by a "concave" payoff function, where losses accelerate.
+Fragility: Something that is harmed by disorder, volatility and unpredictability. It desires "calm and predictability." Fragile systems exhibit "disproportionate harm" or "accelerating harm" with respect to event size. "If I smash one of the Maseratis you see in Palo Alto against a wall at 100 miles per hour, I'm going to damage it a lot more than if I smash it 100 times at one mile per hour." Fragility is characterized by a "concave" payoff function, where losses accelerate.
 
 Robustness: Something that is indifferent to disorder; it withstands shocks but does not gain from them. "You hammer it, nothing happens, but doesn't benefit from it."
 
-Antifragility: Something that gains, strengthens, or thrives from disorder, volatility, stress, and errors. "The anti-fragile will have this payoff where harm is small and the big variations are positive, are favorable." It is characterized by a "convex" payoff function, where gains accelerate or disproportionately outweigh losses. "If you make more when you're right than you lose when you're wrong, then you are anti-fragile."
+Antifragility: Something that gains, strengthens, or thrives from disorder, volatility, stress and errors. "The anti-fragile will have this payoff where harm is small and the big variations are positive, are favorable." It is characterized by a "convex" payoff function, where gains accelerate or disproportionately outweigh losses. "If you make more when you're right than you lose when you're wrong, then you are anti-fragile."
 
 
 ## Manifestations of Antifragility
